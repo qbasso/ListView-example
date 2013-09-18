@@ -1,4 +1,4 @@
-package com.example.listview;
+package com.example.api;
 
 public class WikiaListResponse {
 	private WikiModel[] items;

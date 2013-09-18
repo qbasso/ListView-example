@@ -1,5 +1,5 @@
 /*
- * 
+ * taken from Android developer blog on asynchronous loading and slightly changed
  */
 package com.example.api;
 
@@ -10,12 +10,10 @@ import java.lang.ref.WeakReference;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BitmapFactory.Options;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -30,7 +28,6 @@ import android.widget.ImageView;
  */
 public class ImageLoaderLru {
 
-	/** The Constant LOG_TAG. */
 	private static final String LOG_TAG = "ImageLoaderLRU";
 
 	/**
@@ -58,11 +55,10 @@ public class ImageLoaderLru {
 	 * @param local
 	 *            the local
 	 */
-	public void download(String url, ImageView imageView, boolean thumbnail,
-			boolean local) {
+	public void download(String url, ImageView imageView) {
 		Bitmap bitmap = getBitmapFromCache(url);
 		if (bitmap == null) {
-			forceDownload(url, imageView, thumbnail, local);
+			forceDownload(url, imageView);
 		} else {
 			cancelPotentialDownload(url, imageView);
 			imageView.setImageBitmap(bitmap);
@@ -89,8 +85,7 @@ public class ImageLoaderLru {
 	 * @param local
 	 *            the local
 	 */
-	private void forceDownload(String url, ImageView imageView,
-			boolean thumbnail, boolean local) {
+	private void forceDownload(String url, ImageView imageView) {
 		// State sanity: url is guaranteed to never be null in
 		// DownloadedDrawable and cache keys.
 		if (url == null) {
@@ -98,8 +93,7 @@ public class ImageLoaderLru {
 			return;
 		}
 		if (cancelPotentialDownload(url, imageView)) {
-			BitmapDownloaderTask task = new BitmapDownloaderTask(imageView,
-					thumbnail, local);
+			BitmapDownloaderTask task = new BitmapDownloaderTask(imageView);
 			DownloadedDrawable downloadedDrawable = new DownloadedDrawable(task);
 			imageView.setImageDrawable(downloadedDrawable);
 			imageView.setMinimumHeight(156);
@@ -165,13 +159,10 @@ public class ImageLoaderLru {
 	 *            the local
 	 * @return the bitmap
 	 */
-	Bitmap downloadBitmap(String url, boolean thumbnail, boolean local) {
+	Bitmap downloadBitmap(String url) {
 		Bitmap b = null;
-
-		// final AndroidHttpClient client = AndroidHttpClient
-		// .newInstance("Android");
-		// TODO: Temporary fix to allow app to accept any SSL certificates.
-		HttpClient client = AndroidHttpClient.newInstance("Android");
+		final AndroidHttpClient client = AndroidHttpClient
+				.newInstance("Android");
 		final HttpGet getRequest = new HttpGet(url);
 		try {
 			HttpResponse response = client.execute(getRequest);
@@ -219,27 +210,14 @@ public class ImageLoaderLru {
 		/** The image view reference. */
 		private final WeakReference<ImageView> imageViewReference;
 
-		/** The m subsample rate. */
-		private boolean mThumbnail;
-
-		/** The m local. */
-		private boolean mLocal;
-
 		/**
 		 * Instantiates a new bitmap downloader task.
 		 * 
 		 * @param imageView
 		 *            the image view
-		 * @param thumbnail
-		 *            the subsample rate
-		 * @param local
-		 *            the local
 		 */
-		public BitmapDownloaderTask(ImageView imageView, boolean thumbnail,
-				boolean local) {
+		public BitmapDownloaderTask(ImageView imageView) {
 			imageViewReference = new WeakReference<ImageView>(imageView);
-			mThumbnail = thumbnail;
-			mLocal = local;
 		}
 
 		/**
@@ -252,7 +230,7 @@ public class ImageLoaderLru {
 		@Override
 		protected Bitmap doInBackground(String... params) {
 			url = params[0];
-			return downloadBitmap(url, mThumbnail, mLocal);
+			return downloadBitmap(url);
 		}
 
 		/**

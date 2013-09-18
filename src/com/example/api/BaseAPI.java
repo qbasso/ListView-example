@@ -3,24 +3,28 @@ package com.example.api;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.example.listview.WikiModel;
-import com.example.listview.WikiaListResponse;
+import org.apache.http.HttpEntity;
+
+import android.os.Handler;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class BaseAPI.
+ * The Class BaseAPI. Uses modified android async client library, as in wikia
+ * API parameters order apparently matters. (by default parameters were sorted
+ * alphabeticaly in async http client library)
  */
 public class BaseAPI {
 
 	/** The client. */
 	private static AsyncHttpClient client = new AsyncHttpClient();
+	
+	private Handler mHandler = new Handler();
 
-	/** The m thread pool. */
 	private ExecutorService mThreadPool = Executors.newCachedThreadPool();
 
 	/**
@@ -68,20 +72,23 @@ public class BaseAPI {
 
 			@Override
 			public void onSuccess(final String response) {
-				// Log.d("Request success", "response: " + response);
 				mThreadPool.execute(new Runnable() {
 					@Override
 					public void run() {
-						WikiaListResponse jsonObj = deserialize(response, type);
-						activityCallback.onApiSuccess(jsonObj);
+						final WikiaListResponse jsonObj = deserialize(response, type);
+						mHandler.post(new Runnable() {
+							
+							@Override
+							public void run() {
+								activityCallback.onApiSuccess(jsonObj);
+							}
+						});
 					}
 				});
 			}
 
 			@Override
 			public void onFailure(Throwable e, String response) {
-				// Log.d("Request failed", "response: " + response);
-				// Log errors somehow
 				activityCallback.onApiError(RestErrorType.HTTP, e, response,
 						null);
 			}
