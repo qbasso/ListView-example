@@ -19,6 +19,18 @@ import com.example.api.WikiModel;
 import com.example.api.WikiaApi;
 import com.example.api.WikiaListResponse;
 
+/**
+ * @author kuba orientation change was handled by simply adding configChange
+ *         attribute to activity, so the activity is not restarted. If
+ *         orientation change would imply changing listview layout it can be
+ *         done by overriding
+ *         {@link Activity#onRetainNonConfigurationInstance()}, saving scroll
+ *         current item position and items, and in {@link Activity#onCreate()}
+ *         state can be restored. As
+ *         {@link Activity#onRetainNonConfigurationInstance()} is deprecated,
+ *         corresponding method could be used from
+ *         {@link android.support.v4.app.Fragment} class.
+ */
 public class MainActivity extends Activity implements ApiListener,
 		OnScrollListener {
 
@@ -41,7 +53,8 @@ public class MainActivity extends Activity implements ApiListener,
 		setContentView(R.layout.activity_main);
 		mProgress = (ProgressBar) findViewById(R.id.progressBar);
 		mList = (ListView) findViewById(R.id.list);
-		mAdapter = new ListViewAdapter(this, R.layout.list_item, R.layout.progress_item, mItems);
+		mAdapter = new ListViewAdapter(this, R.layout.list_item,
+				R.layout.progress_item, mItems);
 		mList.setAdapter(mAdapter);
 		mList.setOnScrollListener(this);
 		mApiClient.getWikiList("en", BATCH_SIZE, mCurrentBatch, this);
@@ -79,7 +92,7 @@ public class MainActivity extends Activity implements ApiListener,
 	@Override
 	public void onApiError(RestErrorType type, Throwable error,
 			String response, WikiModel jsonResponse) {
-		Toast.makeText(this, "Error occured! Try later", Toast.LENGTH_SHORT)
+		Toast.makeText(this, R.string.msg_error_loading, Toast.LENGTH_SHORT)
 				.show();
 		mProgress.setVisibility(View.GONE);
 	}

@@ -12,6 +12,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 
+import com.example.listview.R;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -184,6 +186,7 @@ public class ImageLoaderLru {
 						inputStream.close();
 					}
 					entity.consumeContent();
+					client.close();
 				}
 			}
 		} catch (IOException e) {

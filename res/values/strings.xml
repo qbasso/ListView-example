@@ -3,7 +3,7 @@
 
     <string name="app_name">ListView</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
     <string name="please_wait_msg">Please wait...</string>
+    <string name="msg_error_loading">Error occurred! Try later"</string>
 
 </resources>

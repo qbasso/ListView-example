@@ -9,7 +9,7 @@ import android.support.v4.util.LruCache;
 public class BitmapCache extends LruCache<String, Bitmap> {
 
 	private static final int sCacheSize = (int) (Runtime.getRuntime()
-			.maxMemory() / 1024 / 8);
+			.maxMemory() / 1024 / 10);
 
 	public BitmapCache() {
 		super(sCacheSize);
